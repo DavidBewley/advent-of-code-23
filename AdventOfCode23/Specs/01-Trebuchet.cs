@@ -38,7 +38,7 @@ namespace AdventOfCode23.Specs
         public void InputFileWithWordsProducesResult()
         {
             var lines = File.ReadAllText("Inputs/01-TrebuchetInput.txt");
-            new TrebuchetProcessor().ProcessWithWords(lines).Should().Be(0);
+            new TrebuchetProcessor().ProcessWithWords(lines).Should().Be(55902);
         }
     }
 }
