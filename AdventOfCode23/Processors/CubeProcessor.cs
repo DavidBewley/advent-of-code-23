@@ -14,6 +14,13 @@ namespace AdventOfCode23.Processors
             _blueCubesForValidGame = blue;
         }
 
+        public CubeProcessor()
+        {
+            _redCubesForValidGame = 0;
+            _greenCubesForValidGame = 0;
+            _blueCubesForValidGame = 0;
+        }
+
         public int TotalOfGamesValid(string input)
         {
             var runningTotal = 0;
@@ -28,6 +35,20 @@ namespace AdventOfCode23.Processors
             }
             return runningTotal;
         }
+
+        public int GetPowerTotal(string input)
+        {
+            var runningTotal = 0;
+            var games = input.Split('\n');
+            foreach (var game in games)
+            {
+                if (string.IsNullOrEmpty(game))
+                    continue;
+                var cubeGame = new CubeGame(game);
+                runningTotal += cubeGame.GetPower();
+            }
+            return runningTotal;
+        }
     }
 
     public class CubeGame
@@ -37,8 +58,12 @@ namespace AdventOfCode23.Processors
         public int BlueCubesMaxShown { get; private set; }
         public int GreenCubesMaxShown { get; private set; }
 
+
         public bool IsValid(int validRed, int validBlue, int validGreen) 
             => validRed >= RedCubesMaxShown && validBlue>= BlueCubesMaxShown && validGreen >= GreenCubesMaxShown;
+
+        public int GetPower()
+            => RedCubesMaxShown * BlueCubesMaxShown * GreenCubesMaxShown;
 
         public CubeGame(string inputString)
         {

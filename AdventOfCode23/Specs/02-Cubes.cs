@@ -32,5 +32,33 @@ namespace AdventOfCode23.Specs
             new CubeProcessor(12, 13, 14)
                 .TotalOfGamesValid(games).Should().Be(2006);
         }
+
+        [Theory]
+        [InlineData("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green", 48)]
+        [InlineData("Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue", 12)]
+        [InlineData("Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red", 1560)]
+        [InlineData("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red", 630)]
+        [InlineData("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green", 36)]
+        public void CubeGamePowers(string input, int expectedPower)
+            => new CubeProcessor().GetPowerTotal(input).Should().Be(expectedPower);
+
+        [Fact]
+        public void MultiLineInputCubeGamePowers()
+            => new CubeProcessor()
+                .GetPowerTotal(
+                    "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green\n" +
+                    "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue\n" +
+                    "Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red\n" +
+                    "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red\n" +
+                    "Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green")
+                .Should().Be(2286);
+
+        [Fact]
+        public void Part2Solution()
+        {
+            var games = File.ReadAllText("Inputs/02-CubesInput.txt");
+            new CubeProcessor()
+                .GetPowerTotal(games).Should().Be(84911);
+        }
     }
 }
