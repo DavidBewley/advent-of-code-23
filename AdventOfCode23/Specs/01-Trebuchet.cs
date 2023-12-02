@@ -13,13 +13,13 @@ namespace AdventOfCode23.Specs
         [InlineData("treb7uchet", 77)]
         [InlineData("1abc2\npqr3stu8vwx\na1b2c3d4e5f\ntreb7uchet", 142)]
         public void CorrectCalibrationIsReturned(string input, int output) 
-            => new TrebuchetProcessor().Process(input).Should().Be(output);
+            => new TrebuchetProcessor().ProcessWithoutWords(input).Should().Be(output);
 
         [Fact]
         public void InputFileProducesResult()
         {
             var lines = File.ReadAllText("Inputs/01-TrebuchetInput.txt");
-            new TrebuchetProcessor().Process(lines).Should().Be(56465);
+            new TrebuchetProcessor().ProcessWithoutWords(lines).Should().Be(56465);
         }
 
         [Theory]

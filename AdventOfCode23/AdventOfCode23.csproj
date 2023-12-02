@@ -25,12 +25,14 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
-    <Folder Include="Inputs\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Inputs\01-TrebuchetInput.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Inputs\02-CubesInput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
