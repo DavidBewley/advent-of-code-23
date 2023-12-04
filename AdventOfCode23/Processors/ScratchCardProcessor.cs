@@ -13,15 +13,17 @@
             var cards = input.Split('\n');
             var processedCards = cards.Where(c => !string.IsNullOrEmpty(c)).Select(card => new ScratchCard(card)).Reverse().ToList();
 
+            var processedCardsDictionary = processedCards.ToDictionary(card => card.GameId, card => card.GetNumberOfMatches());
+
             var numberOfCardsProcessed = 0;
-            var stack = new Stack<ScratchCard>(processedCards);
+            var stack = new Stack<int>(processedCardsDictionary.Keys);
             while (stack.Any())
             {
                 numberOfCardsProcessed++;
-                var currentCard = stack.Pop();
-                for (int i = 1; i <= currentCard.GetNumberOfMatches(); i++)
+                var currentCardGameId = stack.Pop();
+                for (int i = 1; i <= processedCardsDictionary[currentCardGameId]; i++)
                 {
-                    stack.Push(processedCards.Single(c=>c.GameId == i + currentCard.GameId));
+                    stack.Push(currentCardGameId + i);
                 }
             }
 
