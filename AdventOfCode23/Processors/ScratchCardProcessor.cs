@@ -12,7 +12,6 @@
         {
             var cards = input.Split('\n');
             var processedCards = cards.Where(c => !string.IsNullOrEmpty(c)).Select(card => new ScratchCard(card)).Reverse().ToList();
-
             var processedCardsDictionary = processedCards.ToDictionary(card => card.GameId, card => card.GetNumberOfMatches());
 
             var numberOfCardsProcessed = 0;
@@ -22,9 +21,7 @@
                 numberOfCardsProcessed++;
                 var currentCardGameId = stack.Pop();
                 for (int i = 1; i <= processedCardsDictionary[currentCardGameId]; i++)
-                {
                     stack.Push(currentCardGameId + i);
-                }
             }
 
             return numberOfCardsProcessed;
