@@ -45,7 +45,7 @@ namespace AdventOfCode23.Processors
             Time = time;
             RecordDistance = recordDistance;
 
-            var firstWin = 0;
+            long firstWin = 0;
 
             if (time < 1000)
             {
@@ -60,26 +60,46 @@ namespace AdventOfCode23.Processors
             }
             else
             {
-                for (int i = 0; i < Time; i+=100000)
-                {
-                    if (CalculateIfWon(i, Time - i))
-                    {
-                        firstWin = i;
-                        break;
-                    }
-                }
+                var inputsToOutputs = new Dictionary<long, long>();
 
-                var firstLoss = 0;
-                for (int i = firstWin; i < firstWin - 100000; i--)
+                for (long i = 0; i < Time; i += 1000000)
+                    inputsToOutputs.Add(i, CalculateDistanceTraveled(i, Time - i));
+
+                var closestWinToRecord = inputsToOutputs.Where(w => w.Value > recordDistance).MinBy(r => r.Key).Key;
+
+                inputsToOutputs = new Dictionary<long, long>();
+
+                for (long i = closestWinToRecord; i > closestWinToRecord - 1000000; i -= 100000)
+                    inputsToOutputs.Add(i, CalculateDistanceTraveled(i, Time - i));
+
+                closestWinToRecord = inputsToOutputs.Where(w => w.Value > recordDistance).MinBy(r => r.Key).Key;
+                inputsToOutputs = new Dictionary<long, long>();
+
+                for (long i = closestWinToRecord; i > closestWinToRecord - 100000; i -= 10000)
+                    inputsToOutputs.Add(i, CalculateDistanceTraveled(i, Time - i));
+
+                closestWinToRecord = inputsToOutputs.Where(w => w.Value > recordDistance).MinBy(r => r.Key).Key;
+                inputsToOutputs = new Dictionary<long, long>();
+
+                for (long i = closestWinToRecord; i > closestWinToRecord - 10000; i -= 1000)
+                    inputsToOutputs.Add(i, CalculateDistanceTraveled(i, Time - i));
+
+                closestWinToRecord = inputsToOutputs.Where(w => w.Value > recordDistance).MinBy(r => r.Key).Key;
+                inputsToOutputs = new Dictionary<long, long>();
+
+                for (long i = closestWinToRecord; i > closestWinToRecord - 1000; i -= 100)
+                    inputsToOutputs.Add(i, CalculateDistanceTraveled(i, Time - i));
+
+                closestWinToRecord = inputsToOutputs.Where(w => w.Value > recordDistance).MinBy(r => r.Key).Key;
+
+                for (long i = closestWinToRecord; i > closestWinToRecord - 100; i--)
                 {
                     if (!CalculateIfWon(i, Time - i))
                     {
-                        firstLoss = i;
+                        firstWin = i + 1;
                         break;
                     }
                 }
-
-                firstWin = firstLoss + 1;
             }
 
             NumberOfWaysToWin = Time - firstWin - firstWin + 1;
@@ -87,20 +107,23 @@ namespace AdventOfCode23.Processors
         }
 
         private bool CalculateIfWon(long ticksToAccelerate, long ticksToCoast)
+            => CalculateDistanceTraveled(ticksToAccelerate, ticksToCoast) > RecordDistance;
+
+        private long CalculateDistanceTraveled(long ticksToAccelerate, long ticksToCoast)
         {
-            var distanceTraveled = 0;
-            var speed = 0;
-            for (int i = 0; i < ticksToAccelerate; i++)
+            long distanceTraveled = 0;
+            long speed = 0;
+            for (long i = 0; i < ticksToAccelerate; i++)
             {
                 speed++;
             }
 
-            for (int i = 0; i < ticksToCoast; i++)
+            for (long i = 0; i < ticksToCoast; i++)
             {
                 distanceTraveled += speed;
             }
 
-            return distanceTraveled > RecordDistance;
+            return distanceTraveled;
         }
     }
 }

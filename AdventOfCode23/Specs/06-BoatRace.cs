@@ -27,7 +27,7 @@ namespace AdventOfCode23.Specs
         public void InputFileProducesResultPart2()
         {
             var input = File.ReadAllText("Inputs/06-BoatRace.txt");
-            new BoatRaceProcessor().GetNumberOfWaysToWinBadKerning(input).Should().Be(0);
+            new BoatRaceProcessor().GetNumberOfWaysToWinBadKerning(input).Should().Be(33149631);
         }
     }
 }
