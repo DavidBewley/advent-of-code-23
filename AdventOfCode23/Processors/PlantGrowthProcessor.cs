@@ -3,15 +3,15 @@
     public class PlantGrowthProcessor
     {
         private readonly string _input;
-        private List<int> _seeds;
+        private List<long> _seeds;
         private readonly List<MapRoute> _routes;
-        private Dictionary<int, int> _seedToSoil;
-        private Dictionary<int, int> _soilToFertilizer;
-        private Dictionary<int, int> _fertilizerToWater;
-        private Dictionary<int, int> _waterToLight;
-        private Dictionary<int, int> _lightToTemperature;
-        private Dictionary<int, int> _temperatureToHumidity;
-        private Dictionary<int, int> _humidityToLocation;
+        private Dictionary<long, long> _seedToSoil;
+        private Dictionary<long, long> _soilToFertilizer;
+        private Dictionary<long, long> _fertilizerToWater;
+        private Dictionary<long, long> _waterToLight;
+        private Dictionary<long, long> _lightToTemperature;
+        private Dictionary<long, long> _temperatureToHumidity;
+        private Dictionary<long, long> _humidityToLocation;
 
         public PlantGrowthProcessor(string input)
         {
@@ -26,14 +26,6 @@
             AddRoutes("light-to-temperature map:", MapType.LightToTemp);
             AddRoutes("temperature-to-humidity map:", MapType.TempToHumidity);
             AddRoutes("humidity-to-location map:", MapType.HumidityToLocation);
-
-            _seedToSoil = CreateMap(_routes.Where(r => r.MapType == MapType.SeedToSoil).ToList());
-            _soilToFertilizer = CreateMap(_routes.Where(r => r.MapType == MapType.SoilToFertilizer).ToList());
-            _fertilizerToWater = CreateMap(_routes.Where(r => r.MapType == MapType.FertilizerToWater).ToList());
-            _waterToLight = CreateMap(_routes.Where(r => r.MapType == MapType.WaterToLight).ToList());
-            _lightToTemperature = CreateMap(_routes.Where(r => r.MapType == MapType.LightToTemp).ToList());
-            _temperatureToHumidity = CreateMap(_routes.Where(r => r.MapType == MapType.TempToHumidity).ToList());
-            _humidityToLocation = CreateMap(_routes.Where(r => r.MapType == MapType.HumidityToLocation).ToList());
         }
 
         private void AddRoutes(string splitText, MapType mapType)
@@ -42,12 +34,12 @@
                 _routes.Add(new MapRoute(route, mapType));
         }
 
-        private Dictionary<int,int> CreateMap(List<MapRoute> routes)
+        private async Task<Dictionary<long,long>> CreateMap(List<MapRoute> routes)
         {
-            var resultRoutes = new Dictionary<int, int>();
+            var resultRoutes = new Dictionary<long, long>();
             foreach (var route in routes)
             {
-                for (int i = 0; i < route.RangeLength; i++)
+                for (long i = 0; i < route.RangeLength; i++)
                 {
                     resultRoutes.Add(route.SourceRange + i, route.DestinationRange + i);
                 }
@@ -55,13 +47,31 @@
             return resultRoutes;
         }
 
-        public int FindClosetSeedLocation(int? seed = null)
+        public async Task<long> FindClosetSeedLocation(long? seed = null)
         {
+            var map1 = CreateMap(_routes.Where(r => r.MapType == MapType.SeedToSoil).ToList());
+            var map2 = CreateMap(_routes.Where(r => r.MapType == MapType.SoilToFertilizer).ToList());
+            var map3 = CreateMap(_routes.Where(r => r.MapType == MapType.FertilizerToWater).ToList());
+            var map4 = CreateMap(_routes.Where(r => r.MapType == MapType.WaterToLight).ToList());
+            var map5 = CreateMap(_routes.Where(r => r.MapType == MapType.LightToTemp).ToList());
+            var map6 = CreateMap(_routes.Where(r => r.MapType == MapType.TempToHumidity).ToList());
+            var map7 = CreateMap(_routes.Where(r => r.MapType == MapType.HumidityToLocation).ToList());
+
+            var results = await Task.WhenAll(map1, map2, map3, map4, map5, map6, map7);
+
+            _seedToSoil = results[0];
+            _soilToFertilizer = results[1];
+            _fertilizerToWater = results[2];
+            _waterToLight = results[3];
+            _lightToTemperature = results[4];
+            _temperatureToHumidity = results[5];
+            _humidityToLocation = results[6];
+
             _seeds = seed != null
                 ? new() { seed.Value }
-                : _input.Split("seeds: ")[1].Split('\n')[0].Split(' ').Select(int.Parse).ToList();
+                : _input.Split("seeds: ")[1].Split('\n')[0].Split(' ').Select(long.Parse).ToList();
 
-            var lowestLocation = int.MaxValue;
+            var lowestLocation = long.MaxValue;
             foreach (var s in _seeds)
             {
                 var mappedValue = GetValueFromDictionaryMap(_seedToSoil, s);
@@ -78,23 +88,23 @@
             return lowestLocation;
         }
 
-        private int GetValueFromDictionaryMap(Dictionary<int, int> map, int source) 
+        private long GetValueFromDictionaryMap(Dictionary<long, long> map, long source) 
             => !map.ContainsKey(source) ? source : map[source];
     }
 
     public class MapRoute
     {
-        public int DestinationRange { get; set; }
-        public int SourceRange { get; set; }
-        public int RangeLength { get; set; }
+        public long DestinationRange { get; set; }
+        public long SourceRange { get; set; }
+        public long RangeLength { get; set; }
         public MapType MapType { get; set; }
 
         public MapRoute(string route, MapType type)
         {
             var routeValues = route.Split(' ');
-            DestinationRange = int.Parse(routeValues[0]);
-            SourceRange = int.Parse(routeValues[1]);
-            RangeLength = int.Parse(routeValues[2]);
+            DestinationRange = long.Parse(routeValues[0]);
+            SourceRange = long.Parse(routeValues[1]);
+            RangeLength = long.Parse(routeValues[2]);
             MapType = type;
         }
     }
