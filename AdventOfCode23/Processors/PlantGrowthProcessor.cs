@@ -1,17 +1,11 @@
-﻿namespace AdventOfCode23.Processors
+﻿using System.Runtime.InteropServices;
+
+namespace AdventOfCode23.Processors
 {
     public class PlantGrowthProcessor
     {
         private readonly string _input;
-        private List<long> _seeds;
         private readonly List<MapRoute> _routes;
-        private Dictionary<long, long> _seedToSoil;
-        private Dictionary<long, long> _soilToFertilizer;
-        private Dictionary<long, long> _fertilizerToWater;
-        private Dictionary<long, long> _waterToLight;
-        private Dictionary<long, long> _lightToTemperature;
-        private Dictionary<long, long> _temperatureToHumidity;
-        private Dictionary<long, long> _humidityToLocation;
 
         public PlantGrowthProcessor(string input)
         {
@@ -34,7 +28,7 @@
                 _routes.Add(new MapRoute(route, mapType));
         }
 
-        private async Task<Dictionary<long,long>> CreateMap(List<MapRoute> routes)
+        private async Task<Dictionary<long, long>> CreateMap(List<MapRoute> routes)
         {
             var resultRoutes = new Dictionary<long, long>();
             foreach (var route in routes)
@@ -47,49 +41,57 @@
             return resultRoutes;
         }
 
-        public async Task<long> FindClosetSeedLocation(long? seed = null)
+        public long FindClosetSeedLocation(long? seed = null)
         {
-            var map1 = CreateMap(_routes.Where(r => r.MapType == MapType.SeedToSoil).ToList());
-            var map2 = CreateMap(_routes.Where(r => r.MapType == MapType.SoilToFertilizer).ToList());
-            var map3 = CreateMap(_routes.Where(r => r.MapType == MapType.FertilizerToWater).ToList());
-            var map4 = CreateMap(_routes.Where(r => r.MapType == MapType.WaterToLight).ToList());
-            var map5 = CreateMap(_routes.Where(r => r.MapType == MapType.LightToTemp).ToList());
-            var map6 = CreateMap(_routes.Where(r => r.MapType == MapType.TempToHumidity).ToList());
-            var map7 = CreateMap(_routes.Where(r => r.MapType == MapType.HumidityToLocation).ToList());
-
-            var results = await Task.WhenAll(map1, map2, map3, map4, map5, map6, map7);
-
-            _seedToSoil = results[0];
-            _soilToFertilizer = results[1];
-            _fertilizerToWater = results[2];
-            _waterToLight = results[3];
-            _lightToTemperature = results[4];
-            _temperatureToHumidity = results[5];
-            _humidityToLocation = results[6];
-
-            _seeds = seed != null
+            var seeds = seed != null
                 ? new() { seed.Value }
                 : _input.Split("seeds: ")[1].Split('\n')[0].Split(' ').Select(long.Parse).ToList();
 
+            return DetermineLowestSeedPlot(seeds);
+        }
+
+        public long FindClosetSeedLocationWithRange()
+        {
+            //Do each of them on a thread for every pairing?
+            //Check the lowest of each thread?
+            var seeds = new List<long>();
+            var inputSeeds = _input.Split("seeds: ")[1].Split('\n')[0].Split(' ').Select(long.Parse).ToList();
+            for (var i = 0; i < inputSeeds.Count; i += 2)
+                for (long j = inputSeeds[0]; j < inputSeeds[1] + inputSeeds[0]; j++)
+                    seeds.Add(j);
+
+            return DetermineLowestSeedPlot(seeds);
+        }
+
+        private long DetermineLowestSeedPlot(List<long> seeds)
+        {
             var lowestLocation = long.MaxValue;
-            foreach (var s in _seeds)
+            foreach (var s in seeds)
             {
-                var mappedValue = GetValueFromDictionaryMap(_seedToSoil, s);
-                mappedValue = GetValueFromDictionaryMap(_soilToFertilizer, mappedValue);
-                mappedValue = GetValueFromDictionaryMap(_fertilizerToWater, mappedValue);
-                mappedValue = GetValueFromDictionaryMap(_waterToLight, mappedValue);
-                mappedValue = GetValueFromDictionaryMap(_lightToTemperature, mappedValue);
-                mappedValue = GetValueFromDictionaryMap(_temperatureToHumidity, mappedValue);
-                mappedValue = GetValueFromDictionaryMap(_humidityToLocation, mappedValue);
-                if(mappedValue < lowestLocation)
+                var mappedValue = GetDestinationFromRoute(s, MapType.SeedToSoil);
+                mappedValue = GetDestinationFromRoute(mappedValue, MapType.SoilToFertilizer);
+                mappedValue = GetDestinationFromRoute(mappedValue, MapType.FertilizerToWater);
+                mappedValue = GetDestinationFromRoute(mappedValue, MapType.WaterToLight);
+                mappedValue = GetDestinationFromRoute(mappedValue, MapType.LightToTemp);
+                mappedValue = GetDestinationFromRoute(mappedValue, MapType.TempToHumidity);
+                mappedValue = GetDestinationFromRoute(mappedValue, MapType.HumidityToLocation);
+
+                if (mappedValue < lowestLocation)
                     lowestLocation = mappedValue;
             }
-
             return lowestLocation;
         }
 
-        private long GetValueFromDictionaryMap(Dictionary<long, long> map, long source) 
-            => !map.ContainsKey(source) ? source : map[source];
+        private long GetDestinationFromRoute(long input, MapType mapType)
+        {
+            var validRoutes = _routes.Where(r => r.MapType == mapType && r.SourceNumberIsInRoute(input));
+            if (validRoutes.Count() > 1)
+                throw new Exception("Multiple routes found!");
+
+            return validRoutes.Any()
+                ? validRoutes.First().GetDestinationNumber(input)
+                : input;
+        }
     }
 
     public class MapRoute
@@ -98,6 +100,15 @@
         public long SourceRange { get; set; }
         public long RangeLength { get; set; }
         public MapType MapType { get; set; }
+
+        public bool SourceNumberIsInRoute(long source)
+            => source >= SourceRange && source < SourceRange + RangeLength;
+
+        public long GetDestinationNumber(long source)
+        {
+            var diff = source - SourceRange;
+            return DestinationRange + diff;
+        }
 
         public MapRoute(string route, MapType type)
         {

@@ -19,8 +19,20 @@ namespace AdventOfCode23.Specs
         public void InputFileProducesResultPart1()
         {
             var input = File.ReadAllText("Inputs/05-PlantGrowth.txt");
-            new PlantGrowthProcessor(input).FindClosetSeedLocation().Should().Be(0);
+            new PlantGrowthProcessor(input).FindClosetSeedLocation().Should().Be(107430936);
         }
 
+
+        [Theory]
+        [InlineData(46)]
+        public void ClosestLocationWithSeedRangesIsFound(int expectedLocation)
+            => new PlantGrowthProcessor(input).FindClosetSeedLocationWithRange().Should().Be(expectedLocation);
+
+        [Fact]
+        public void InputFileProducesResultPart2()
+        {
+            var input = File.ReadAllText("Inputs/05-PlantGrowth.txt");
+            new PlantGrowthProcessor(input).FindClosetSeedLocationWithRange().Should().Be(0);
+        }
     }
 }
