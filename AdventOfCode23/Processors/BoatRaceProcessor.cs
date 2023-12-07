@@ -74,11 +74,11 @@ namespace AdventOfCode23.Processors
 
                 for (long i = closestWinToRecord; i > closestWinToRecord - 100; i--)
                 {
-                    if (!CalculateIfWon(i, Time - i))
-                    {
-                        firstWin = i + 1;
-                        break;
-                    }
+                    if (CalculateIfWon(i, Time - i)) 
+                        continue;
+
+                    firstWin = i + 1;
+                    break;
                 }
             }
 
