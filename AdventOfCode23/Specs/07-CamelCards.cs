@@ -29,5 +29,12 @@ namespace AdventOfCode23.Specs
         [InlineData("AKQJT",HandType.HighCard)]
         public void HandsAreAssignedCorrectTypes(string hand, HandType expectedHandType)
             => new CamelCardHand(hand, 0).HandType.Should().Be(expectedHandType);
+
+        [Fact]
+        public void InputFileProducesResultPart1()
+        {
+            var input = File.ReadAllText("Inputs/07-CamelCards.txt");
+            new CamelCardsProcessor().ProcessHands(input).Should().Be(248453531);
+        }
     }
 }
