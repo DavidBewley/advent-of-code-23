@@ -47,7 +47,7 @@ namespace AdventOfCode23.Processors
 
             long firstWin = 0;
 
-            if (time < 1000)
+            if (time < 1000000)
             {
                 for (int i = 0; i < Time; i++)
                 {
