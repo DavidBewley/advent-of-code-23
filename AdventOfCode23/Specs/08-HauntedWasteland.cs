@@ -21,5 +21,19 @@ namespace AdventOfCode23.Specs
             new HauntedWastelandProcessor(input).CalculateNumberOfTurnsToReachDestination().Should().Be(13771);
         }
 
+        [Fact]
+        public void GhostsAllHitEndIn6Moves()
+        {
+            var input = "LR\n\n11A = (11B, XXX)\n11B = (XXX, 11Z)\n11Z = (11B, XXX)\n22A = (22B, XXX)\n22B = (22C, 22C)\n22C = (22Z, 22Z)\n22Z = (22B, 22B)\nXXX = (XXX, XXX)";
+            new HauntedWastelandProcessor(input).CalculateNumberOfTurnsForGhostsToReachEnd().Should().Be(6);
+        }
+
+        [Fact]
+        public void InputFileProducesResultPart2()
+        {
+            var input = File.ReadAllText("Inputs/08-HauntedWasteland.txt");
+            new HauntedWastelandProcessor(input).CalculateNumberOfTurnsForGhostsToReachEnd().Should().Be(0);
+        }
+
     }
 }
